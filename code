@@ -1,0 +1,31 @@
+solidity
+Copy code
+pragma solidity ^0.8.0;
+contract SupplyChain {
+ struct Item {
+ uint id;
+ address owner;
+ }
+ mapping(uint => Item) public items;
+ modifier onlyOwner(uint itemId) {
+ require(items[itemId].owner == msg.sender, "Not the owner");
+ _;
+ }
+ // Secure transferItem function
+ function transferItem(uint itemId, address newOwner) public onlyOwner(itemId) {
+ require(newOwner != address(0), "Invalid new owner"); // Prevent sending to zero address
+ items[itemId].owner = newOwner; // Update state before external call
+ }
+ // A withdraw function to handle Ether safely (if needed for the contract logic)
+ function withdraw() public {
+ require(address(this).balance > 0, "No funds to withdraw");
+ payable(msg.sender).transfer(address(this).balance);
+ }
+ // Fallback and receive function disabled to prevent unintended Ether transfers
+ fallback() external payable {
+ revert("Fallback not supported");
+ }
+ receive() external payable {
+ revert("Ether not accepted");
+ }
+}
